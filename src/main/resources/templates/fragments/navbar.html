@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<nav class="navbar" th:fragment="navbar">
+
+    <ul class="nav-left">
+
+        <!-- ================= STUDENT ================= -->
+        <li sec:authorize="hasRole('STUDENT')">
+            <a th:href="@{/student/dashboard}">Dashboard</a>
+        </li>
+
+        <li sec:authorize="hasRole('STUDENT')">
+            <a th:href="@{/student/profile}">Student Profile</a>
+        </li>
+
+        <li sec:authorize="hasRole('STUDENT')">
+            <a th:href="@{/student/registration}">Registration</a>
+        </li>
+
+        <!-- Student Dropdown -->
+        <li class="dropdown" sec:authorize="hasRole('STUDENT')">
+            <a href="#" class="dropdown-toggle">
+                Course Adjustments <span class="caret">▾</span>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a th:href="@{/student/add-drop}">Add-Drop Course</a>
+                </li>
+                <li>
+                    <a th:href="@{/student/drop}">Drop Course</a>
+                </li>
+            </ul>
+        </li>
+
+        <li sec:authorize="hasRole('STUDENT')">
+            <a th:href="@{/student/result}">Result</a>
+        </li>
+
+        <!-- ================= FACULTY ================= -->
+        <li sec:authorize="hasRole('FACULTY')">
+            <a th:href="@{/faculty/dashboard}">Dashboard</a>
+        </li>
+
+        <li sec:authorize="hasRole('FACULTY')">
+            <a th:href="@{/faculty/courses}">Courses</a>
+        </li>
+
+        <!-- ================= ADMIN ================= -->
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/dashboard}">Dashboard</a>
+        </li>
+
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/program}">Programs</a>
+        </li>
+
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/academicyears}">Academic Years</a>
+        </li>
+
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/batches}">Batches</a>
+        </li>
+
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/semesters}">Semesters</a>
+        </li>
+
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/terms}">Terms</a>
+        </li>
+
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/mastercourses}">Master Courses</a>
+        </li>
+
+    </ul>
+
+    <!-- ================= COMMON (RIGHT SIDE) ================= -->
+    <ul class="nav-right">
+
+        <li sec:authorize="isAuthenticated()">
+            <a th:href="@{/auth/change-password}">Change Password</a>
+        </li>
+
+        <li sec:authorize="isAuthenticated()">
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}" />
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </li>
+
+    </ul>
+
+</nav>
+
+</html>
