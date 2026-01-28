@@ -21,15 +21,19 @@
 
         <!-- Student Dropdown -->
         <li class="dropdown" sec:authorize="hasRole('STUDENT')">
-            <a href="#" class="dropdown-toggle">
-                Course Adjustments <span class="caret">▾</span>
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                Course Adjustments
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <a th:href="@{/student/add-drop}">Add-Drop Course</a>
+                    <a class="dropdown-item" th:href="@{/student/add-drop}">
+                        Add-Drop Course
+                    </a>
                 </li>
                 <li>
-                    <a th:href="@{/student/drop}">Drop Course</a>
+                    <a class="dropdown-item" th:href="@{/student/drop}">
+                        Drop Course
+                    </a>
                 </li>
             </ul>
         </li>
