@@ -68,7 +68,7 @@
             <a th:href="@{/admin/batches}">Batches</a>
         </li>
 
-        <!-- Student Dropdown for Add-Drop Courses -->
+        <!-- Admin Dropdown for Semesters -->
         <li class="dropdown" sec:authorize="hasRole('ADMIN')">
             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                 Semesters
@@ -80,15 +80,30 @@
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" th:href="@{/admin/semestercourses}">
+                    <a class="dropdown-item" th:href="@{/admin/semesters/semestercourses}">
                         Semester Courses
                     </a>
                 </li>
             </ul>
         </li>
 
-        <li sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/admin/terms}">Terms</a>
+        <!-- Admin Dropdown for Terms -->
+        <li class="dropdown" sec:authorize="hasRole('ADMIN')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                Terms
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" th:href="@{/admin/terms}">
+                        Terms
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{/admin/terms/termcourses}">
+                        Term Courses
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li sec:authorize="hasRole('ADMIN')">

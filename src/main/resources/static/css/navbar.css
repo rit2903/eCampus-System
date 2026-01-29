@@ -1,3 +1,17 @@
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: white;
+}
+
+.navbar {
+    position: sticky;
+    top: 50px; /* height of header */
+    z-index: 999;
+    background-color: #fff;
+}
+
 /* ===== VARIABLES ===== */
 :root {
     --primary: #003366;

@@ -45,7 +45,7 @@ public class Semesters {
     private Long strrowstate = 1L;
 
     @Column(name = "strseqno")
-    private Long strseqno = 0L;
+    private Long strseqno;
 
     @Column(name = "strstcid")
     private Long strstcid = 1L;
@@ -60,7 +60,7 @@ public class Semesters {
     private String stradddropstatus;
 
     @Column(name = "strbchid", insertable = false, updatable = false)
-    private Long strbchid = 0L;
+    private Long strbchid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "strbchid", referencedColumnName = "bchid", nullable = false)
@@ -86,10 +86,8 @@ public class Semesters {
         if (this.strresultdecdate == null) this.strresultdecdate = LocalDateTime.now();
         if (this.strcreatedby == null) this.strcreatedby = 0L;
         if (this.strlastupdatedby == null) this.strlastupdatedby = 0L;
-        if (this.strbchid == null) this.strbchid = 0L;
         if (this.strtrmid == null) this.strtrmid = 0L;
         if (this.strrowstate == null) this.strrowstate = 1L;
-        if (this.strseqno == null) this.strseqno = 0L;
         if (this.strstcid == null) this.strstcid = 1L;
     }
 

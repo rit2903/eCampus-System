@@ -33,7 +33,7 @@ public class SemesterCourses {
     private Long scrlastupdatedby;
 
     @Column(name = "scrlastupdatedat")
-    private LocalDateTime scrlastupdatedat = LocalDateTime.now();
+    private LocalDateTime scrlastupdatedat;
 
     @Column(name = "scrrowstate")
     private Long scrrowstate = 1L;
@@ -46,7 +46,6 @@ public class SemesterCourses {
     public void prePersist() {
         if (this.scrcreatedby == null) this.scrcreatedby = 0L;
         if (this.scrcreatedat == null) this.scrcreatedat = LocalDateTime.now();
-        if (this.scrlastupdatedat == null) this.scrlastupdatedat = LocalDateTime.now();
         if (this.scrrowstate == null) this.scrrowstate = 1L;
     }
 

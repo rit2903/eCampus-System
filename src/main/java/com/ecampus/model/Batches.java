@@ -65,7 +65,7 @@ public class Batches {
     private String bchinstcode;
 
     @Column(name = "scheme_id")
-    private Integer schemeId;
+    private Long schemeId;
 
     public Long getBchid() { return bchid; }
     public void setBchid(Long bchid) { this.bchid = bchid; }
@@ -103,6 +103,6 @@ public class Batches {
     public String getBchinstcode() { return bchinstcode; }
     public void setBchinstcode(String bchinstcode) { this.bchinstcode = bchinstcode; }
 
-    public Integer getSchemeId() { return schemeId; }
-    public void setSchemeId(Integer schemeId) { this.schemeId = schemeId; }
+    public Long getSchemeId() { return schemeId; }
+    public void setSchemeId(Long schemeId) { this.schemeId = schemeId; }
 }

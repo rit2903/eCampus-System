@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/semesters")
 public class SemestersController {
 
     @Autowired
@@ -23,7 +23,7 @@ public class SemestersController {
     private SemesterCoursesRepository semesterCoursesRepository;
 
     // LIST SEMESTERS (DESC ORDER)
-    @GetMapping("/semesters")
+    @GetMapping
     public String listSemesters(Model model) {
         List<Object[]> rows = semesterRepository.getAllSemestersDetailsRaw();
 
@@ -44,7 +44,7 @@ public class SemestersController {
                         ));
 
         model.addAttribute("semestersByTerm", semestersByTerm);
-        return "admin/semesters"; // semesters.html
+        return "admin/semesters";
     }
 
     @GetMapping("/semestercourses")
