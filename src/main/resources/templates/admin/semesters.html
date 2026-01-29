@@ -21,10 +21,21 @@
 
     <div th:each="entry : ${semestersByTerm}">
 
-        <h4 class="mt-4" th:text="'Term: ' + ${entry.key}"></h4>
-
         <table class="table table-bordered mt-2">
             <thead class="table-light">
+
+            <!-- Term Row -->
+            <tr>
+                <th colspan="4"
+                    th:text="${entry.key}"
+                    style="
+                            text-align:center;
+                            background-color:#e9ecef;
+                            font-weight:bold;
+                            ">
+                </th>
+            </tr>
+
             <tr>
                 <th style="background-color: #003366; color: white;">Semester ID</th>
                 <th style="background-color: #003366; color: white;">Batch</th>
