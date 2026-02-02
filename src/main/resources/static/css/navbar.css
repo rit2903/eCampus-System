@@ -141,3 +141,38 @@
         margin-right: 10px;
     }
 }
+
+/* ============ Desktop View (Large Screens) ============ */
+@media all and (min-width: 992px) {
+
+    /* Ensure the parent List Item is the anchor for positioning */
+    .dropdown-menu .nested-dropdown {
+        position: relative;
+    }
+
+    /* Hide the nested menu by default */
+    .dropdown-menu .nested-dropdown .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: 100%; /* Move it to the right of the parent */
+        top: 0;     /* Align with the top of the item */
+        margin-top: -5px; /* Slight adjustment for alignment */
+    }
+
+    /* Show the nested menu on hover */
+    .dropdown-menu .nested-dropdown:hover > .dropdown-menu {
+        display: block;
+    }
+}
+
+/* ============ Mobile View (Small Screens) ============ */
+@media (max-width: 991px) {
+    /* On mobile, simply indent the nested menu so it looks like a tree */
+    .dropdown-menu .nested-dropdown .dropdown-menu {
+        display: block; /* Always show in mobile if parent is open, or use JS to toggle */
+        position: static;
+        margin-left: 20px;
+        background-color: #f8f9fa;
+        border: none;
+    }
+}

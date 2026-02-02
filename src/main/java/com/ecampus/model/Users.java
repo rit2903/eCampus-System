@@ -1,6 +1,9 @@
 package com.ecampus.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+
+import com.ecampus.auth.user.AuthUserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +15,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users", schema="ec2")
-public class Users {
+public class Users implements AuthUserDetails {
 
     @Id
     @Column(name = "uid")
@@ -144,5 +147,21 @@ public class Users {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.uname;
+    }
+
+    @Override
+    public String getpassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getrole() {
+        if(Objects.equals(this.urole0, "EMPLOYEE") || Objects.equals(this.urole0, "DEAN")) return "FACULTY";
+        return this.urole0;
     }
 }

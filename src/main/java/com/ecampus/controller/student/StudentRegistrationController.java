@@ -2,7 +2,7 @@ package com.ecampus.controller.student;
 
 import com.ecampus.config.RegistrationDeadlineConfig;
 import com.ecampus.model.*;
-import com.ecampus.security.CustomUserDetails;
+import com.ecampus.repository.UserRepository;
 import com.ecampus.service.*;
 
 import jakarta.servlet.http.HttpSession;
@@ -27,12 +27,15 @@ public class StudentRegistrationController {
     @Autowired
     private RegistrationDeadlineConfig deadlineConfig;
 
+    @Autowired
+    private UserRepository userRepo;
+
     @GetMapping("/student/registration")
     public String listStudentRegistrations( Authentication authentication, Model model) {
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Users user = userDetails.getUser();
-        Long studentId = user.getStdid();
+        String username = authentication.getName();
+
+        Long studentId = userRepo.findIdByUname(username);
 
         Students st = registrationService.getStudentById(studentId);
 

@@ -8,12 +8,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ecampus.auth.user.UserDetailsRepository;
 import com.ecampus.model.Users;
 
 @Repository
-public interface UserRepository extends JpaRepository<Users, Long> {
+public interface UserRepository extends JpaRepository<Users, Long>, UserDetailsRepository {
 
     List<Users> findByUrole0(String urole0);
+
+    @Query(value = "SELECT * FROM ec2.users WHERE univid = :uname", nativeQuery = true)
+    Optional<Users> findWithName(@Param("uname") String uname);
+
+    @Query(value = "SELECT stdid FROM ec2.users WHERE uname = :username", nativeQuery = true)
+    Long findIdByUname(@Param("username") String username);
 
     // Use native query so we hit the actual DB column `univid`
     @Query(value = "SELECT * FROM ec2.users WHERE univid = :univid", nativeQuery = true)
@@ -54,9 +61,9 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     List<Users> searchFacultyList(@Param("keyword") String keyword);
 
     @Query(value = """
-        SELECT * 
-        FROM ec2.users 
-        WHERE urole_0 = 'FACULTY' 
+        SELECT *
+        FROM ec2.users
+        WHERE urole_0 = 'FACULTY'
           AND LOWER(uemail) LIKE LOWER(CONCAT('%', :query, '%'))
         """,
             nativeQuery = true)
