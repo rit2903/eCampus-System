@@ -67,6 +67,16 @@ public class Batches {
     @Column(name = "scheme_id")
     private Long schemeId;
 
+    @Column(name = "splid")
+    private Long splid;
+
+    //    @ManyToOne
+//    @JoinColumns({
+//            @JoinColumn(name = "scheme_id", referencedColumnName = "scheme_id", insertable = false, updatable = false),
+//            @JoinColumn(name = "splid", referencedColumnName = "splid", insertable = false, updatable = false)
+//    })
+//    private SchemeDetails schemeDetails;
+
     public Long getBchid() { return bchid; }
     public void setBchid(Long bchid) { this.bchid = bchid; }
 
@@ -105,4 +115,7 @@ public class Batches {
 
     public Long getSchemeId() { return schemeId; }
     public void setSchemeId(Long schemeId) { this.schemeId = schemeId; }
+
+    public Long getSplid() { return splid; }
+    public void setSplid(Long splid) { this.splid = splid; }
 }

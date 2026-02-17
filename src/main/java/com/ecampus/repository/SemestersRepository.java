@@ -18,14 +18,14 @@ public interface SemestersRepository extends JpaRepository<Semesters, Long> {
     @Query(value = "SELECT MAX(sm.STRID) FROM ec2.SEMESTERS sm WHERE sm.STRROWSTATE > 0 AND sm.STRBCHID = :batchId", nativeQuery = true)
     Long findMaxSemesterId(@Param("batchId") Long batchId);
 
-    @Query(value = "SELECT MAX(sm.STRID) FROM ec2.SEMESTERS sm WHERE sm.STRROWSTATE > 0", nativeQuery = true)
-    Long findMaxSemesterId();
+//    @Query(value = "SELECT MAX(sm.STRID) FROM ec2.SEMESTERS sm WHERE sm.STRROWSTATE > 0", nativeQuery = true)
+//    Long findMaxSemesterId();
 
     @Query(value = "SELECT COALESCE(MAX(sm.STRSEQNO), 0) FROM ec2.SEMESTERS sm WHERE sm.STRROWSTATE > 0 AND sm.STRBCHID = :batchId", nativeQuery = true)
     Long findMaxSemesterSeqNo(@Param("batchId") Long batchId);
 
-    @Query(value = "SELECT sm.STRID FROM ec2.SEMESTERS sm WHERE sm.STRROWSTATE > 0 AND sm.STRBCHID = :batchId AND sm.STRTRMID = :termId", nativeQuery = true)
-    Long findSemesterId(@Param("batchId") Long batchId, @Param("termId") Long termId);
+//    @Query(value = "SELECT sm.STRID FROM ec2.SEMESTERS sm WHERE sm.STRROWSTATE > 0 AND sm.STRBCHID = :batchId AND sm.STRTRMID = :termId", nativeQuery = true)
+//    Long findSemesterId(@Param("batchId") Long batchId, @Param("termId") Long termId);
 
     Optional<Semesters> findByStridAndStrrowstateGreaterThan(Long strid, int rowState);
 
