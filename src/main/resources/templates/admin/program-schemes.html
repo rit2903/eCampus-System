@@ -36,6 +36,11 @@
     </div>
     <h2 th:text="'Schemes for ' + ${program.prgname}" class="mb-4">Schemes</h2>
 
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert" id="flashMessage">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="row row-cols-1 row-cols-md-3 g-4">
         <!-- Loop through schemes -->
         <div class="col" th:each="scheme : ${schemes}">
@@ -67,7 +72,6 @@
             <div class="card h-100 border-success text-center">
                 <div class="card-body d-flex flex-column justify-content-center">
                     <a th:href="@{/admin/programs/{id}/schemes/pull(id=${program.prgid})}" class="btn btn-outline-info">Pull from Existing Scheme</a>
-
                 </div>
             </div>
         </div>
@@ -80,5 +84,14 @@
     <!-- FOOTER -->
     <div th:replace="fragments/footer :: footer"></div>
 </div>
+<script>
+    setTimeout(() => {
+        const alertElement = document.getElementById('flashMessage');
+        if (alertElement) {
+            const alert = bootstrap.Alert.getOrCreateInstance(alertElement);
+            alert.close();  // Properly removes it
+        }
+    }, 5000);
+</script>
 </body>
 </html>

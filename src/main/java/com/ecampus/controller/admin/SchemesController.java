@@ -135,84 +135,142 @@ public class SchemesController {
         return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/graduation-requirements";
     }
 
-// Edit is now not required for scheme, it is only required for SchemeDetails table
-//    @GetMapping("/{schemeId}/edit")
-//    public String showEditSchemeForm(@PathVariable("programId") Long programId,
-//                                     @PathVariable("schemeId") Long schemeId,
-//                                     Model model) {
-//        Scheme scheme = schemeRepository.findById(schemeId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid scheme ID"));
-//
-//        model.addAttribute("scheme", scheme);
-//        model.addAttribute("editing", true);
-//        return "scheme_form";
-//    }
+    @GetMapping("/{schemeId}/add")
+    public String showAddSpecializationForm(@PathVariable Long programId,
+                                            @PathVariable Long schemeId,
+                                            Model model) {
+        Optional<Programs> program = programsRepository.findById(programId);
+        if (program.isEmpty()) {
+            return "redirect:/admin/programs";
+        }
 
-//    @GetMapping("/pull")
-//    public String showPullForm(@PathVariable("id") Short programId, Model model) {
-//        List<Scheme> allSchemes = schemeRepository.findByProgram_Prgid(Long.valueOf(programId));
-//        model.addAttribute("schemes", allSchemes);
-//        model.addAttribute("programId", programId);
-//        return "pull_scheme_select";
-//    }
-//    @PostMapping("/program/{programId}/scheme/pull")
-//    public String pullFromScheme(@PathVariable Long programId,
-//                                 @RequestParam("sourceSchemeId") Long fromSchemeId,
-//                                 @RequestParam("effectiveYear") Long effectiveYear) {
-//
-//        // Fetch the scheme to pull from
-//        Scheme fromScheme = schemeRepository.findById((long) fromSchemeId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid source scheme ID"));
-//
-//        // Generate new scheme ID based on programId and effective year
-//        Long newSchemeId = (long) Integer.parseInt(programId + "" + effectiveYear);
-//
-//        // Create and populate new Scheme
-//        Scheme newScheme = new Scheme();
-//        newScheme.setId(newSchemeId);
-//        newScheme.setProgram(fromScheme.getProgram());
-//        newScheme.setEffectiveFromYear(effectiveYear);
-//        newScheme.setMinCpi(fromScheme.getMinCpi());
-//        newScheme.setMinCredits(fromScheme.getMinCredits());
-//        newScheme.setMaxCreditLoad(fromScheme.getMaxCreditLoad());
-//        newScheme.setMaxCourses(fromScheme.getMaxCourses());
-//        schemeRepository.save(newScheme);
-//
-//        // Clone Course Requirements
-//        List<CourseRequirement> fromRequirements = courseRequirementRepository.findBySchemeId(fromSchemeId);
-//        for (CourseRequirement cr : fromRequirements) {
-//            CourseRequirement newCr = new CourseRequirement();
-//            newCr.setSchemeId(newSchemeId);
-//            newCr.setProgramId(cr.getProgramId());
-//            newCr.setCourseTypeCode(cr.getCourseTypeCode());
-//            newCr.setMinCourse(cr.getMinCourse());
-//            newCr.setMaxCourse(cr.getMaxCourse());
-//            newCr.setMinCredits(cr.getMinCredits());
-//            newCr.setMaxCredits(cr.getMaxCredits());
-//            courseRequirementRepository.save(newCr);
-//        }
-//
-//        // Clone Semester Courses
-//        List<SchemeCourse> fromSemesterCourses = schemeCourseRepository.findBySchemeId(fromSchemeId);
-//        for (SchemeCourse sc : fromSemesterCourses) {
-//            SchemeCourse newSc = new SchemeCourse();
-//            newSc.setSchemeId(newSchemeId);
-//            newSc.setSemNo(sc.getSemNo());
-//            newSc.setCourseSrNo(sc.getCourseSrNo());
-//            newSc.setCourseTypeCode(sc.getCourseTypeCode());
-//            newSc.setCourseId(sc.getCourseId());
-//            newSc.setCourseCode(sc.getCourseCode());
-//            newSc.setCourseTitle(sc.getCourseTitle());
-//            newSc.setProgramId(sc.getProgramId());
-//            newSc.setLectureHours(sc.getLectureHours());
-//            newSc.setTutorialHours(sc.getTutorialHours());
-//            newSc.setPracticalHours(sc.getPracticalHours());
-//            newSc.setTotalCredits(sc.getTutorialHours());
-//            schemeCourseRepository.save(newSc);
-//        }
-//
-//        // Redirect to the course requirements page of the new scheme
-//        return "redirect:/program/" + programId + "/scheme/" + newSchemeId + "/details";
-//    }
+        SchemeDetails sd = new SchemeDetails();
+        sd.setSchemeId(schemeId);
+        // sd.setSplid(0L);
+
+        model.addAttribute("degree", sd);
+        model.addAttribute("programId", programId);
+        model.addAttribute("scheme", schemeRepository.findById(schemeId).orElse(null));
+        model.addAttribute("editing", false);
+        return "admin/degree-form";
+    }
+
+    @PostMapping("/{schemeId}/degree/save")
+    public String saveSpecialization(@PathVariable Long programId,
+                                     @PathVariable Long schemeId,
+                                     @ModelAttribute("degree") SchemeDetails degree) {
+        degree.setSchemeId(schemeId);
+        schemeDetailsRepository.save(degree);
+        return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId;
+    }
+
+    @GetMapping("/pull")
+    public String showPullSchemeForm(@PathVariable Long programId, Model model) {
+        Optional<Programs> program = programsRepository.findById(programId);
+        if (program.isEmpty()) {
+            return "redirect:/admin/programs";
+        }
+
+        // Get all existing schemes for this program
+        List<Scheme> existingSchemes = schemeRepository.findByProgram_Prgid(programId);
+
+        model.addAttribute("programId", programId);
+        model.addAttribute("existingSchemes", existingSchemes);
+        return "admin/pull-scheme-form";
+    }
+
+    @PostMapping("/pull")
+    public String pullFromScheme(@PathVariable Long programId,
+                                 @RequestParam Long newSchemeId,
+                                 @RequestParam Long effectiveFromYear,
+                                 @RequestParam Long sourceSchemeId,
+                                 RedirectAttributes redirectAttributes) {
+
+        // Check if new scheme ID already exists
+        if (schemeRepository.existsById(newSchemeId)) {
+            redirectAttributes.addFlashAttribute("error", "Scheme with ID " + newSchemeId + " already exists.");
+            return "redirect:/admin/programs/" + programId + "/schemes/pull";
+        }
+
+        // Fetch the source scheme
+        Optional<Scheme> sourceSchemeOpt = schemeRepository.findById(sourceSchemeId);
+        if (sourceSchemeOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Source scheme not found.");
+            return "redirect:/admin/programs/" + programId + "/schemes/pull";
+        }
+        Scheme sourceScheme = sourceSchemeOpt.get();
+
+        // Fetch the program
+        Optional<Programs> programOpt = programsRepository.findById(programId);
+        if (programOpt.isEmpty()) {
+            return "redirect:/admin/programs";
+        }
+
+        // 1. Create new Scheme
+        Scheme newScheme = new Scheme();
+        newScheme.setId(newSchemeId);
+        newScheme.setProgram(programOpt.get());
+        newScheme.setEffectiveFromYear(effectiveFromYear);
+        schemeRepository.save(newScheme);
+
+        // 2. Copy all SchemeDetails (specializations)
+        List<SchemeDetails> sourceDetails = schemeDetailsRepository.findBySchemeId(sourceSchemeId);
+        for (SchemeDetails sd : sourceDetails) {
+            SchemeDetails newDetail = new SchemeDetails();
+            newDetail.setSchemeId(newSchemeId);
+            newDetail.setSplid(sd.getSplid());
+            newDetail.setSplname(sd.getSplname());
+            newDetail.setSpldesc(sd.getSpldesc());
+            newDetail.setSplMinCreditLoad(sd.getSplMinCreditLoad());
+            newDetail.setSplMaxCreditLoad(sd.getSplMaxCreditLoad());
+            newDetail.setSplMinCourses(sd.getSplMinCourses());
+            newDetail.setSplMaxCourses(sd.getSplMaxCourses());
+            newDetail.setSplMinCpi(sd.getSplMinCpi());
+            newDetail.setSplMinCredits(sd.getSplMinCredits());
+            schemeDetailsRepository.save(newDetail);
+        }
+
+        // 3. Copy all CourseTypes for all specializations
+        List<CourseTypes> sourceCourseTypes = courseTypesRepository.findBySchemeId(sourceSchemeId);
+        for (CourseTypes ct : sourceCourseTypes) {
+            CourseTypes newCt = new CourseTypes();
+            newCt.setSchemeId(newSchemeId);
+            newCt.setSplid(ct.getSplid());
+            newCt.setCtpcode(ct.getCtpcode());
+            newCt.setCtpname(ct.getCtpname());
+            newCt.setCtpdesc(ct.getCtpdesc());
+            newCt.setMinCourses(ct.getMinCourses());
+            newCt.setMaxCourses(ct.getMaxCourses());
+            newCt.setMinCredits(ct.getMinCredits());
+            newCt.setMaxCredits(ct.getMaxCredits());
+            courseTypesRepository.save(newCt);
+        }
+
+        // 4. Copy all SchemeCourses for all specializations
+        List<SchemeCourses> sourceSchemeCourses = schemeCourseRepository.findBySchemeId(sourceSchemeId);
+        for (SchemeCourses sc : sourceSchemeCourses) {
+            SchemeCourses newSc = new SchemeCourses();
+            newSc.setSchemeId(newSchemeId);
+            newSc.setSplid(sc.getSplid());
+            newSc.setTermName(sc.getTermName());
+            newSc.setProgramYear(sc.getProgramYear());
+            newSc.setCourseSrNo(sc.getCourseSrNo());
+            newSc.setSemNo(sc.getSemNo());
+            newSc.setSemesterName(sc.getSemesterName());
+            newSc.setTermSeqNo(sc.getTermSeqNo());
+            newSc.setCtpcode(sc.getCtpcode());
+            newSc.setCrsid(sc.getCrsid());
+            newSc.setCourseCode(sc.getCourseCode());
+            newSc.setCourseTitle(sc.getCourseTitle());
+            newSc.setLectureHours(sc.getLectureHours());
+            newSc.setTutorialHours(sc.getTutorialHours());
+            newSc.setPracticalHours(sc.getPracticalHours());
+            newSc.setTotalCredits(sc.getTotalCredits());
+            schemeCourseRepository.save(newSc);
+        }
+
+        redirectAttributes.addFlashAttribute("success", "Scheme Pulled Successfully!");
+        return "redirect:/admin/programs/" + programId;
+    }
 
 }
