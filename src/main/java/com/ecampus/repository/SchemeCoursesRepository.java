@@ -7,14 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SchemeCoursesRepository extends JpaRepository<SchemeCourses, SchemeCoursesId> {
+    // Find all scheme courses for a scheme (all specializations)
+    List<SchemeCourses> findBySchemeId(Long schemeId);
 
-//    // Get all semester courses for a given scheme
-//    List<SchemeCourses> findBySchemeId(Long schemeId);
-//
-//    // Find a single course by composite key
-//    SchemeCourses findBySchemeIdAndSemNoAndCourseSrNo(Long schemeId, Long semNo, Long courseSrNo);
-//
-//    // Optional: get by scheme + semester number
-//    List<SchemeCourses> findBySchemeIdAndSemNo(Long schemeId, Long semNo);
-//    List<SchemeCourses> findBySchemeIdAndSemNoOrderByCourseSrNo(Long schemeId, Long semNo);
+    // Find all scheme courses for a scheme limited to a set of splids, ordered by programYear and termSeqNo
+    List<SchemeCourses> findBySchemeIdAndSplidInOrderByProgramYearAscTermSeqNoAsc(Long schemeId, List<Long> splids);
+
+    // Find courses for specific splid, termName and programYear, ordered by courseSrNo
+    List<SchemeCourses> findBySchemeIdAndSplidAndTermNameAndProgramYearOrderByCourseSrNo(
+            Long schemeId, Long splid, String termName, Long programYear);
 }

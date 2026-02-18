@@ -56,6 +56,9 @@ public class TermCourses {
     @Column(name = "tcrslot")
     private Long tcrslot;
 
+    @Column(name = "crstype")
+    private String crstype;
+
     @ManyToOne
     @JoinColumn(name = "tcrcrsid", referencedColumnName = "crsid", insertable = false, updatable = false)
     private Courses course;
@@ -128,6 +131,9 @@ public class TermCourses {
 
     public Long getTcrslot() { return tcrslot; }
     public void setTcrslot(Long tcrslot) { this.tcrslot = tcrslot; }
+
+    public String getCrstype() { return crstype; }
+    public void setCrstype(String crstype) { this.crstype = crstype; }
 
     public Courses getCourse() {
         return course;

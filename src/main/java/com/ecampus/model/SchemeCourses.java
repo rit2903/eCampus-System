@@ -18,14 +18,29 @@ public class SchemeCourses {
     private Long splid;
 
     @Id
-    @Column(name = "sem_no")
-    private Long semNo;
+    @Column(name = "term_name")
+    private String termName;
+
+    @Id
+    @Column(name = "program_year")
+    private Long programYear;
 
     @Id
     @Column(name = "course_sr_no")
     private Long courseSrNo;
 
-    // ---- FOREIGN KEY TO CourseRequirements ----
+    // ---- NON-PK ----
+
+    @Column(name = "sem_no")
+    private Long semNo;
+
+    @Column(name = "semester_name")
+    private String semesterName;
+
+    @Column(name = "term_seq_no")
+    private Long termSeqNo;
+
+    // ---- FOREIGN KEY TO CourseTypes ----
 
     @Column(name = "ctpcode")
     private String ctpcode;
@@ -65,12 +80,11 @@ public class SchemeCourses {
     public Long getSplid() { return splid; }
     public void setSplid(Long splid) { this.splid = splid; }
 
-    public Long getSemNo() {
-        return semNo;
-    }
-    public void setSemNo(Long semNo) {
-        this.semNo = semNo;
-    }
+    public String getTermName() { return termName; }
+    public void setTermName(String termName) { this.termName = termName; }
+
+    public Long getProgramYear() { return programYear; }
+    public void setProgramYear(Long programYear) { this.programYear = programYear; }
 
     public Long getCourseSrNo() {
         return courseSrNo;
@@ -78,6 +92,19 @@ public class SchemeCourses {
     public void setCourseSrNo(Long courseSrNo) {
         this.courseSrNo = courseSrNo;
     }
+
+    public Long getSemNo() {
+        return semNo;
+    }
+    public void setSemNo(Long semNo) {
+        this.semNo = semNo;
+    }
+
+    public String getSemesterName() { return semesterName; }
+    public void setSemesterName(String semesterName) { this.semesterName = semesterName; }
+
+    public Long getTermSeqNo() { return termSeqNo; }
+    public void setTermSeqNo(Long termSeqNo) { this.termSeqNo = termSeqNo; }
 
     public String getCtpcode() { return ctpcode; }
     public void setCtpcode(String ctpcode) { this.ctpcode = ctpcode; }

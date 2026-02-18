@@ -14,8 +14,8 @@ public class SemesterCourses {
     @Column(name = "scrstrid")
     private Long scrstrid;
 
-    @Column(name = "screlective")
-    private String screlective;
+    @Column(name = "crstype")
+    private String crstype;
 
     @Column(name = "scrcrsid")
     private Long scrcrsid;
@@ -49,14 +49,15 @@ public class SemesterCourses {
         if (this.scrrowstate == null) this.scrrowstate = 1L;
     }
 
+    // Getters & Setters
     public Long getScrid() { return scrid; }
     public void setScrid(Long scrid) { this.scrid = scrid; }
 
     public Long getScrstrid() { return scrstrid; }
     public void setScrstrid(Long scrstrid) { this.scrstrid = scrstrid; }
 
-    public String getScrelective() { return screlective; }
-    public void setScrelective(String screlective) { this.screlective = screlective; }
+    public String getCrstype() { return crstype; }
+    public void setCrstype(String crstype) { this.crstype = crstype; }
 
     public Long getScrcrsid() { return scrcrsid; }
     public void setScrcrsid(Long scrcrsid) { this.scrcrsid = scrcrsid; }
@@ -81,5 +82,4 @@ public class SemesterCourses {
 
     public Long getScrtcrid() { return scrtcrid; }
     public void setScrtcrid(Long scrtcrid) { this.scrtcrid = scrtcrid; }
-
 }

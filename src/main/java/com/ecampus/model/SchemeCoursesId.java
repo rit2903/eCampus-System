@@ -7,15 +7,17 @@ public class SchemeCoursesId implements Serializable {
 
     private Long schemeId;
     private Long splid;
-    private Long semNo;
+    private String termName;
+    private Long programYear;
     private Long courseSrNo;
 
     public SchemeCoursesId() {}
 
-    public SchemeCoursesId(Long schemeId, Long splid, Long semNo, Long courseSrNo) {
+    public SchemeCoursesId(Long schemeId, Long splid, String termName, Long programYear, Long courseSrNo) {
         this.schemeId = schemeId;
         this.splid = splid;
-        this.semNo = semNo;
+        this.termName = termName;
+        this.programYear = programYear;
         this.courseSrNo = courseSrNo;
     }
 
@@ -25,12 +27,13 @@ public class SchemeCoursesId implements Serializable {
         if (!(o instanceof SchemeCoursesId that)) return false;
         return Objects.equals(schemeId, that.schemeId)
                 && Objects.equals(splid, that.splid)
-                && Objects.equals(semNo, that.semNo)
+                && Objects.equals(termName, that.termName)
+                && Objects.equals(programYear, that.programYear)
                 && Objects.equals(courseSrNo, that.courseSrNo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(schemeId, splid, semNo, courseSrNo);
+        return Objects.hash(schemeId, splid, termName, programYear, courseSrNo);
     }
 }
