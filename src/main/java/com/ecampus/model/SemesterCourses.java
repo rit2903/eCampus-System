@@ -41,6 +41,9 @@ public class SemesterCourses {
     @Column(name = "scrtcrid")
     private Long scrtcrid;
 
+    @Column(name = "scrseqno")
+    private Long scrseqno;
+
     // Auto-default setter before inserting
     @PrePersist
     public void prePersist() {
@@ -82,4 +85,7 @@ public class SemesterCourses {
 
     public Long getScrtcrid() { return scrtcrid; }
     public void setScrtcrid(Long scrtcrid) { this.scrtcrid = scrtcrid; }
+
+    public Long getScrseqno() { return scrseqno; }
+    public void setScrseqno(Long scrseqno) { this.scrseqno = scrseqno; }
 }

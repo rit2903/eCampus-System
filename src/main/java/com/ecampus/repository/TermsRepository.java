@@ -58,4 +58,7 @@ public interface TermsRepository extends JpaRepository<Terms, Long> {
 
     @Query(value = "SELECT t.trmid AS trmid, t.trmname AS trmname, a.ayrname AS ayrname, t.trm_starts AS trmstarts, t.trm_ends AS trmends FROM ec2.terms AS t JOIN ec2.academicyears AS a ON t.trmayrid=a.ayrid ORDER BY t.trmid DESC", nativeQuery = true)
     List<Object[]> getAllTermsDetailsRaw();
+    
+    @Query("SELECT COALESCE(MAX(t.trmid), 0) FROM Terms t")
+    Long findMaxTrmid();
 }

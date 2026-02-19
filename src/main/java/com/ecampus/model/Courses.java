@@ -87,6 +87,12 @@ public class Courses {
     @Column(name = "trmid", insertable = false, updatable = false)
     private Long trmid;
 
+    @Column(name = "crstype")
+    private String crstype;
+
+    @Column(name = "crslevel")
+    private String crslevel;
+
     @ManyToOne
     @JoinColumn(name = "trmid",referencedColumnName="trmid")
     private Terms term;
@@ -183,4 +189,9 @@ public class Courses {
     public Long getCrsrowstate() { return crsrowstate; }
     public void setCrsrowstate(Long crsrowstate) { this.crsrowstate = crsrowstate; }
 
+    public String getCrstype() { return crstype; }
+    public void setCrstype(String crstype) { this.crstype = crstype; }
+
+    public String getCrslevel() { return crslevel; }
+    public void setCrslevel(String crslevel) { this.crslevel = crslevel; }
 }

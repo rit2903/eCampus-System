@@ -43,13 +43,15 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
 //    Long findMaxSemesterCourseid();
 
     @Query(value = """
-            SELECT CONCAT(t.trmname, ' (', a.ayrname, ' ', ')') as term, CONCAT(p.prgname, ' ', b.bchname, ' - ', s.strname) AS batchsem, c.crscode AS crscode, c.crsname AS crsname, CONCAT(c.crscreditpoints, ' (', c.crslectures, ' + ', c.crstutorials, ' + ', c.crspracticals, ')') AS credithours FROM ec2.semestercourses AS sc
+            SELECT CONCAT(t.trmname, ' (', a.ayrname, ' ', ')') as term, CONCAT(COALESCE(sd.spldesc, p.prgname), ' ', b.bchname, ' - ', s.strname) AS batchsem, c.crscode AS crscode, c.crsname AS crsname, CONCAT(c.crscreditpoints, ' (', c.crslectures, ' + ', c.crstutorials, ' + ', c.crspracticals, ')') AS credithours FROM ec2.semestercourses AS sc
             JOIN ec2.semesters AS s
             ON sc.scrstrid=s.strid
             JOIN ec2.batches AS b
             ON s.strbchid=b.bchid
             JOIN ec2.programs AS p
             ON b.bchprgid=p.prgid
+            LEFT JOIN ec2.schemedetails as sd
+            ON b.scheme_id=sd.scheme_id AND b.splid=sd.splid
             JOIN ec2.terms AS t
             ON s.strtrmid=t.trmid
             JOIN ec2.academicyears AS a
@@ -59,4 +61,7 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
             ORDER BY t.trmid DESC, b.bchid DESC, sc.scrid DESC
             """, nativeQuery = true)
     List<Object[]> getAllSemesterCoursesDetailsRaw();
+    
+    @Query(value = "SELECT COALESCE(MAX(sc.SCRID), 0) FROM ec2.SEMESTERCOURSES sc", nativeQuery = true)
+    Long findMaxSemesterCourseid();
 }

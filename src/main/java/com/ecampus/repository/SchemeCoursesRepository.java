@@ -16,4 +16,8 @@ public interface SchemeCoursesRepository extends JpaRepository<SchemeCourses, Sc
     // Find courses for specific splid, termName and programYear, ordered by courseSrNo
     List<SchemeCourses> findBySchemeIdAndSplidAndTermNameAndProgramYearOrderByCourseSrNo(
             Long schemeId, Long splid, String termName, Long programYear);
+    
+    // Find courses for multiple splids, termName and programYear, ordered by splid then courseSrNo
+    List<SchemeCourses> findBySchemeIdAndSplidInAndTermNameAndProgramYearOrderBySplidAscCourseSrNoAsc(
+            Long schemeId, List<Long> splids, String termName, Long programYear);
 }
