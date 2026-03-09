@@ -1,16 +1,18 @@
 package com.ecampus.repository;
 
 import com.ecampus.model.CourseTypes;
-import com.ecampus.model.CourseTypesId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CourseTypesRepository extends JpaRepository<CourseTypes, CourseTypesId> {
+public interface CourseTypesRepository extends JpaRepository<CourseTypes, Long> {
     // Find all course types for a scheme (all specializations)
     List<CourseTypes> findBySchemeId(Long schemeId);
+
+    // Find course types for a specific scheme and splid
+    List<CourseTypes> findBySchemeIdAndSplid(Long schemeId, Long splid);
 
     // Find course types for a scheme restricted to specific splid values
     List<CourseTypes> findBySchemeIdAndSplidIn(Long schemeId, java.util.List<Long> splids);
@@ -22,4 +24,7 @@ public interface CourseTypesRepository extends JpaRepository<CourseTypes, Course
 
     @Query(value = "SELECT DISTINCT ct.ctpcode AS code, ct.ctpname AS name FROM ec2.coursetypes ct WHERE ct.ctpcode IN (SELECT DISTINCT sc.ctpcode FROM ec2.schemecourses sc WHERE sc.scheme_id = :scheme_id AND sc.splid = :splid AND sc.sem_no <= :sem_no AND sc.crsid IS NULL)", nativeQuery = true)
     List<Object[]> getElectiveTypeBySchSplSem(@Param("scheme_id") Long scheme_id, @Param("splid") Long splid, @Param("sem_no") Long sem_no);
+
+    @Query("SELECT COALESCE(MAX(c.ctpid), 0) FROM CourseTypes c")
+    Long findMaxCtpid();
 }

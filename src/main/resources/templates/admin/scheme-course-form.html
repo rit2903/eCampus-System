@@ -50,41 +50,17 @@
 
         <div class="mb-3">
             <label class="form-label">Course Type</label>
-            <select class="form-select" th:field="*{ctpcode}" required>
+            <select class="form-select" th:field="*{ctpid}" required>
+                <option value="" disabled selected>Select a course type</option>
                 <option th:each="ct : ${courseTypes}"
-                        th:value="${ct.ctpcode}"
+                        th:value="${ct.ctpid}"
                         th:text="${ct.ctpcode} + ' - ' + ${ct.ctpname}"></option>
             </select>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Course Code</label>
-            <input type="text" class="form-control" th:field="*{courseCode}" required />
-        </div>
-
-        <div class="mb-3">
             <label class="form-label">Course Title</label>
             <input type="text" class="form-control" th:field="*{courseTitle}" required />
-        </div>
-
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Lecture Hours</label>
-                <input type="number" step="1" class="form-control" th:field="*{lectureHours}" />
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Tutorial Hours</label>
-                <input type="number" step="1" class="form-control" th:field="*{tutorialHours}" />
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Practical Hours</label>
-                <input type="number" step="1" class="form-control" th:field="*{practicalHours}" />
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Total Credits</label>
-            <input type="number" step="1" class="form-control" th:field="*{totalCredits}" />
         </div>
 
         <input type="hidden" th:field="*{schemeId}" />
@@ -101,7 +77,7 @@
 </div>
 
 <script>
-    // When a course is selected from the datalist, fill hidden crsid and autofill fields
+    // When a course is selected from the datalist, fill hidden crsid and autofill course title
     const courseInput = document.getElementById('courseSearch');
     const datalist = document.getElementById('coursesList');
     const crsidInput = document.getElementById('crsid');
@@ -116,19 +92,9 @@
             if (opt.value === val) {
                 const dataset = opt.dataset;
                 if (crsidInput) crsidInput.value = dataset.crsid || '';
-                // autofill fields
-                const courseCodeEl = document.querySelector('input[name="courseCode"]');
+                // autofill course title
                 const courseTitleEl = document.querySelector('input[name="courseTitle"]');
-                const lectureEl = document.querySelector('input[name="lectureHours"]');
-                const tutorialEl = document.querySelector('input[name="tutorialHours"]');
-                const practicalEl = document.querySelector('input[name="practicalHours"]');
-                const creditsEl = document.querySelector('input[name="totalCredits"]');
-                if (courseCodeEl) courseCodeEl.value = dataset.crscode || '';
                 if (courseTitleEl) courseTitleEl.value = dataset.crsname || '';
-                if (lectureEl) lectureEl.value = dataset.lectures || '';
-                if (tutorialEl) tutorialEl.value = dataset.tutorials || '';
-                if (practicalEl) practicalEl.value = dataset.practicals || '';
-                if (creditsEl) creditsEl.value = dataset.credits || '';
                 return;
             }
         }

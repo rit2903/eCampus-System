@@ -232,11 +232,16 @@ public class SchemesController {
 
         // 3. Copy all CourseTypes for all specializations
         List<CourseTypes> sourceCourseTypes = courseTypesRepository.findBySchemeId(sourceSchemeId);
+        Long maxCtpid = courseTypesRepository.findMaxCtpid();
+        java.util.Map<Long, Long> ctpidMapping = new java.util.HashMap<>(); // old ctpid -> new ctpid
         for (CourseTypes ct : sourceCourseTypes) {
+            maxCtpid++;
             CourseTypes newCt = new CourseTypes();
+            newCt.setCtpid(maxCtpid);
             newCt.setSchemeId(newSchemeId);
             newCt.setSplid(ct.getSplid());
             newCt.setCtpcode(ct.getCtpcode());
+            newCt.setCrscat(ct.getCrscat());
             newCt.setCtpname(ct.getCtpname());
             newCt.setCtpdesc(ct.getCtpdesc());
             newCt.setMinCourses(ct.getMinCourses());
@@ -244,6 +249,7 @@ public class SchemesController {
             newCt.setMinCredits(ct.getMinCredits());
             newCt.setMaxCredits(ct.getMaxCredits());
             courseTypesRepository.save(newCt);
+            ctpidMapping.put(ct.getCtpid(), maxCtpid);
         }
 
         // 4. Copy all SchemeCourses for all specializations
@@ -258,14 +264,9 @@ public class SchemesController {
             newSc.setSemNo(sc.getSemNo());
             newSc.setSemesterName(sc.getSemesterName());
             newSc.setTermSeqNo(sc.getTermSeqNo());
-            newSc.setCtpcode(sc.getCtpcode());
+            newSc.setCtpid(ctpidMapping.getOrDefault(sc.getCtpid(), sc.getCtpid()));
             newSc.setCrsid(sc.getCrsid());
-            newSc.setCourseCode(sc.getCourseCode());
             newSc.setCourseTitle(sc.getCourseTitle());
-            newSc.setLectureHours(sc.getLectureHours());
-            newSc.setTutorialHours(sc.getTutorialHours());
-            newSc.setPracticalHours(sc.getPracticalHours());
-            newSc.setTotalCredits(sc.getTotalCredits());
             schemeCourseRepository.save(newSc);
         }
 

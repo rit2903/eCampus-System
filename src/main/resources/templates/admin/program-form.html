@@ -58,7 +58,11 @@
 
         <div class="mb-3">
             <label class="form-label">Duration Units</label>
-            <input type="text" class="form-control" th:field="*{prgdurationunits}" />
+            <select class="form-select" th:field="*{prgdurationunits}" required>
+                <option value="" disabled>Select category</option>
+                <option value="Years">Years</option>
+                <option value="Semesters">Semesters</option>
+            </select>
         </div>
 
         <div class="mb-3">

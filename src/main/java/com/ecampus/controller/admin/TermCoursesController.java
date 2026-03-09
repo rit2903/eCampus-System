@@ -140,10 +140,13 @@ public class TermCoursesController {
                 newTc.setTcrtrmid(termId);
                 newTc.setTcrcrsid(crsid);
                 newTc.setTcrtype(prevTc.getTcrtype());
+                newTc.setTcrfacultyid(prevTc.getTcrfacultyid());
                 newTc.setTcrroundlogic(prevTc.getTcrroundlogic());
                 newTc.setTcrmarks(prevTc.getTcrmarks());
                 newTc.setTcrstatus("AVAILABLE");
+                newTc.setTcraccessstatus(prevTc.getTcraccessstatus());
                 newTc.setCrstype("ELECTIVE");
+                newTc.setTcrslot(prevTc.getTcrslot());
                 newTc.setTcrrowstate(1L);
                 newTc.setTcrcreatedat(LocalDateTime.now());
                 

@@ -34,6 +34,7 @@
         <thead>
         <tr>
             <th>Course Type Code</th>
+            <th>Category</th>
             <th>Name</th>
             <th>Description</th>
             <th>Min Courses</th>
@@ -46,6 +47,7 @@
         <tbody>
         <tr th:each="ct : ${courseTypes}">
             <td th:text="${ct.ctpcode}">CTP</td>
+            <td th:text="${ct.crscat}">CORE</td>
             <td th:text="${ct.ctpname}">Name</td>
             <td th:text="${ct.ctpdesc}">Description</td>
             <td th:text="${ct.minCourses}">0</td>
@@ -53,29 +55,13 @@
             <td th:text="${ct.minCredits}">0</td>
             <td th:text="${ct.maxCredits}">0</td>
             <td>
-    <span th:if="${ct.splid} == ${splid}">
-        <div class="d-flex gap-1">
-            <a th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types/{ctpcode}/edit(programId=${programId}, schemeId=${scheme.id}, splid=${splid}, ctpcode=${ct.ctpcode})}"
-               class="btn btn-sm btn-primary">Edit</a>
+                <div class="d-flex gap-1">
+                    <a th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types/{ctpid}/edit(programId=${programId}, schemeId=${scheme.id}, splid=${splid}, ctpid=${ct.ctpid})}"
+                       class="btn btn-sm btn-primary">Edit</a>
 
-            <a th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types/{ctpcode}/delete(programId=${programId}, schemeId=${scheme.id}, splid=${splid}, ctpcode=${ct.ctpcode})}"
-               class="btn btn-sm btn-danger">Delete</a>
-        </div>
-    </span>
-
-                <span th:unless="${ct.splid} == ${splid}">
-        <div class="d-flex gap-1">
-            <button class="btn btn-sm btn-outline-secondary"
-                    onclick="alert('This course type belongs to the general degree; update it from the general degree page.');">
-                Edit
-            </button>
-
-            <button class="btn btn-sm btn-outline-secondary"
-                    onclick="alert('This course type belongs to the general degree; update it from the general degree page.');">
-                Delete
-            </button>
-        </div>
-    </span>
+                    <a th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types/{ctpid}/delete(programId=${programId}, schemeId=${scheme.id}, splid=${splid}, ctpid=${ct.ctpid})}"
+                       class="btn btn-sm btn-danger">Delete</a>
+                </div>
             </td>
 
         </tr>

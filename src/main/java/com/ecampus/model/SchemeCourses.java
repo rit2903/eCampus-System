@@ -42,31 +42,26 @@ public class SchemeCourses {
 
     // ---- FOREIGN KEY TO CourseTypes ----
 
-    @Column(name = "ctpcode")
-    private String ctpcode;
+    @Column(name = "ctpid")
+    private Long ctpid;
 
-    // ---- COURSE INFO ----
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ctpid", insertable = false, updatable = false)
+    private CourseTypes courseType;
+
+    // ---- FOREIGN KEY TO Courses ----
 
     @Column(name = "crsid")
     private Long crsid;
 
-    @Column(name = "course_code") // length = 5
-    private String courseCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "crsid", insertable = false, updatable = false)
+    private Courses course;
+
+    // ---- COURSE INFO ----
 
     @Column(name = "course_title")
     private String courseTitle;
-
-    @Column(name = "lecture_hours")
-    private Long lectureHours;
-
-    @Column(name = "tutorial_hours")
-    private Long tutorialHours;
-
-    @Column(name = "practical_hours")
-    private Long practicalHours;
-
-    @Column(name = "total_credits")
-    private Long totalCredits;
 
     // ---- getters & setters ----
 
@@ -106,51 +101,22 @@ public class SchemeCourses {
     public Long getTermSeqNo() { return termSeqNo; }
     public void setTermSeqNo(Long termSeqNo) { this.termSeqNo = termSeqNo; }
 
-    public String getCtpcode() { return ctpcode; }
-    public void setCtpcode(String ctpcode) { this.ctpcode = ctpcode; }
+    public Long getCtpid() { return ctpid; }
+    public void setCtpid(Long ctpid) { this.ctpid = ctpid; }
+
+    public CourseTypes getCourseType() { return courseType; }
+    public void setCourseType(CourseTypes courseType) { this.courseType = courseType; }
 
     public Long getCrsid() { return crsid; }
     public void setCrsid(Long crsid) { this.crsid = crsid; }
 
-    public String getCourseCode() {
-        return courseCode;
-    }
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode;
-    }
+    public Courses getCourse() { return course; }
+    public void setCourse(Courses course) { this.course = course; }
 
     public String getCourseTitle() {
         return courseTitle;
     }
     public void setCourseTitle(String courseTitle) {
         this.courseTitle = courseTitle;
-    }
-
-    public Long getLectureHours() {
-        return lectureHours;
-    }
-    public void setLectureHours(Long lectureHours) {
-        this.lectureHours = lectureHours;
-    }
-
-    public Long getTutorialHours() {
-        return tutorialHours;
-    }
-    public void setTutorialHours(Long tutorialHours) {
-        this.tutorialHours = tutorialHours;
-    }
-
-    public Long getPracticalHours() {
-        return practicalHours;
-    }
-    public void setPracticalHours(Long practicalHours) {
-        this.practicalHours = practicalHours;
-    }
-
-    public Long getTotalCredits() {
-        return totalCredits;
-    }
-    public void setTotalCredits(Long totalCredits) {
-        this.totalCredits = totalCredits;
     }
 }

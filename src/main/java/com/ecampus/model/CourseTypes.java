@@ -4,20 +4,23 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "coursetypes", schema = "ec2")
-@IdClass(CourseTypesId.class)
 public class CourseTypes {
 
     @Id
+    @Column(name = "ctpid")
+    private Long ctpid;
+
     @Column(name = "scheme_id")
     private Long schemeId;
 
-    @Id
     @Column(name = "splid")
     private Long splid;
 
-    @Id
     @Column(name = "ctpcode")
     private String ctpcode;
+
+    @Column(name = "crscat")
+    private String crscat;
 
     @Column(name = "ctpname")
     private String ctpname;
@@ -54,6 +57,9 @@ public class CourseTypes {
     })
     private SchemeDetails schemeDetails;
 
+    public Long getCtpid() { return ctpid; }
+    public void setCtpid(Long ctpid) { this.ctpid = ctpid; }
+
     public Long getSchemeId() { return schemeId; }
     public void setSchemeId(Long schemeId) { this.schemeId = schemeId; }
 
@@ -62,6 +68,9 @@ public class CourseTypes {
 
     public String getCtpcode() { return ctpcode; }
     public void setCtpcode(String ctpcode) { this.ctpcode = ctpcode; }
+
+    public String getCrscat() { return crscat; }
+    public void setCrscat(String crscat) { this.crscat = crscat; }
 
     public String getCtpname() { return ctpname; }
     public void setCtpname(String ctpname) { this.ctpname = ctpname; }
@@ -82,5 +91,5 @@ public class CourseTypes {
     public void setMaxCredits(Long maxCredits) { this.maxCredits = maxCredits; }
 
     public SchemeDetails getSchemeDetails() { return schemeDetails; }
-    
+    public void setSchemeDetails(SchemeDetails schemeDetails) { this.schemeDetails = schemeDetails; }
 }

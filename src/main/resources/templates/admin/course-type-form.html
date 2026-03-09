@@ -26,6 +26,7 @@
     <form th:action="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types/save(programId=${programId}, schemeId=${scheme.id}, splid=${splid})}"
           th:object="${courseType}" method="post">
         <input type="hidden" name="editing" th:value="${editing}" />
+        <input type="hidden" th:field="*{ctpid}" />
 
         <div class="mb-3" th:if="${editing}">
             <label class="form-label">Course Type Code</label>
@@ -36,6 +37,17 @@
         <div class="mb-3" th:unless="${editing}">
             <label class="form-label" for="ctpcode">Course Type Code</label>
             <input type="text" class="form-control" th:field="*{ctpcode}" id="ctpcode" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" th:field="*{crscat}" required>
+                <option value="" disabled>Select category</option>
+                <option value="CORE">CORE</option>
+                <option value="ELECTIVE">ELECTIVE</option>
+                <option value="INTERNSHIP">INTERNSHIP</option>
+                <option value="PROJECT">PROJECT</option>
+            </select>
         </div>
 
         <div class="mb-3">

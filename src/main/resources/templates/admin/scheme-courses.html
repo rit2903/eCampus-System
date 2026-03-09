@@ -34,13 +34,13 @@
             </thead>
             <tbody>
             <tr th:each="course : ${entry.value}">
-                <td th:text="${course.courseCode}">CS101</td>
+                <td th:text="${course.course != null} ? ${course.course.crscode} : ''"></td>
                 <td th:text="${course.courseTitle}">Intro to CS</td>
-                <td th:text="${course.ctpcode}">TH</td>
-                <td th:text="${course.lectureHours}">3</td>
-                <td th:text="${course.tutorialHours}">1</td>
-                <td th:text="${course.practicalHours}">2</td>
-                <td th:text="${course.totalCredits}">5</td>
+                <td th:text="${course.courseType != null} ? ${course.courseType.ctpcode} : ''"></td>
+                <td th:text="${course.course != null} ? ${course.course.crslectures} : ''"></td>
+                <td th:text="${course.course != null} ? ${course.course.crstutorials} : ''"></td>
+                <td th:text="${course.course != null} ? ${course.course.crspracticals} : ''"></td>
+                <td th:text="${course.course != null} ? ${course.course.crscreditpoints} : ''"></td>
                 <td class="d-flex gap-2">
                     <span th:if="${course.splid} == ${splid}">
                         <a class="btn btn-sm btn-warning"
