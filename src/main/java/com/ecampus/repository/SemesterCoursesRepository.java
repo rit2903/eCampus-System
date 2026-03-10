@@ -43,7 +43,12 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
 //    Long findMaxSemesterCourseid();
 
     @Query(value = """
-            SELECT CONCAT(t.trmname, ' (', a.ayrname, ')') as term, CONCAT(COALESCE(sd.spldesc, p.prgname), ' ', b.bchname, ' - ', s.strname) AS batchsem, c.crscode AS crscode, c.crsname AS crsname, CONCAT(c.crscreditpoints, ' (', c.crslectures, ' + ', c.crstutorials, ' + ', c.crspracticals, ')') AS credithours FROM ec2.semestercourses AS sc
+            SELECT CONCAT(t.trmname, ' (', a.ayrname, ')') as term, CONCAT(COALESCE(sd.spldesc, p.prgname), ' ', b.bchname, ' - ', s.strname) AS batchsem, c.crscode AS crscode, COALESCE(c.crsname, ct.ctpname) AS crsname, ct.crscat as crstype,
+			CASE 
+        	WHEN c.crscreditpoints IS NULL THEN NULL
+        	ELSE CONCAT(c.crscreditpoints, ' (', c.crslectures, ' + ', c.crstutorials, ' + ', c.crspracticals, ')')
+    		END AS credithours
+			FROM ec2.semestercourses AS sc
             JOIN ec2.semesters AS s
             ON sc.scrstrid=s.strid
             JOIN ec2.batches AS b
@@ -56,8 +61,10 @@ public interface SemesterCoursesRepository extends JpaRepository<SemesterCourses
             ON s.strtrmid=t.trmid
             JOIN ec2.academicyears AS a
             ON t.trmayrid=a.ayrid
-            JOIN ec2.courses AS c
+            LEFT JOIN ec2.courses AS c
             ON sc.scrcrsid=c.crsid
+			LEFT JOIN ec2.coursetypes AS ct
+			ON sc.ctpid=ct.ctpid
             ORDER BY t.trmid DESC, b.bchid DESC, sc.scrseqno ASC
             """, nativeQuery = true)
     List<Object[]> getAllSemesterCoursesDetailsRaw();

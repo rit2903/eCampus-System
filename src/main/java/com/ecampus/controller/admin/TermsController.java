@@ -194,7 +194,7 @@ public class TermsController {
             // 8. Get scheme courses for this batch's scheme, splids, term, and program year
             Long schemeId = batch.getSchemeId();
             Long splid = batch.getSplid();
-        //     Long splid = batch.getSplid() != null ? batch.getSplid() : 0L;
+            // Long splid = batch.getSplid() != null ? batch.getSplid() : 0L;
             
             // Get splids: if splid > 0, include both 0 and splid; otherwise just 0
             List<Long> splids = splid > 0L ? Arrays.asList(0L, splid) : List.of(0L);
@@ -254,9 +254,8 @@ public class TermsController {
                     }
                 } else {
                     // Course without crsid (elective placeholder) - no TermCourse entry
-                //     tcrid = null;
-                //     crstype = "ELECTIVE";
-                    continue;   // skip adding to SemesterCourses due to insufficient attributes to make a meaningful entry
+                    tcrid = null;
+                    crstype = "ELECTIVE";
                 }
 
                 // 10. Add to SemesterCourses
@@ -268,7 +267,8 @@ public class TermsController {
                 semCourse.setScrstrid(newSemId);
                 semCourse.setScrcrsid(crsid);
                 semCourse.setScrtcrid(tcrid);
-                semCourse.setCrstype(crstype);
+                semCourse.setScrelective("ELECTIVE".equalsIgnoreCase(crstype) ? "Y" : "N");
+                semCourse.setCtpid(sc.getCtpid());
                 semCourse.setScrseqno(scrSeqNo);
                 semCourse.setScrrowstate(1L);
                 semCourse.setScrcreatedat(LocalDateTime.now());

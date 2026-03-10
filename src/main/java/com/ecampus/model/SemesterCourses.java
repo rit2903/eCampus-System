@@ -14,8 +14,8 @@ public class SemesterCourses {
     @Column(name = "scrstrid")
     private Long scrstrid;
 
-    @Column(name = "crstype")
-    private String crstype; // Course Type ("Core", "Elective", "IP") (IP=Internship/Project)
+    @Column(name = "screlective")
+    private String screlective;
 
     @Column(name = "scrcrsid")
     private Long scrcrsid;
@@ -44,6 +44,13 @@ public class SemesterCourses {
     @Column(name = "scrseqno")
     private Long scrseqno;
 
+    @Column(name = "ctpid")
+    private Long ctpid;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ctpid", insertable = false, updatable = false)
+    private CourseTypes courseType;
+
     // Auto-default setter before inserting
     @PrePersist
     public void prePersist() {
@@ -59,8 +66,8 @@ public class SemesterCourses {
     public Long getScrstrid() { return scrstrid; }
     public void setScrstrid(Long scrstrid) { this.scrstrid = scrstrid; }
 
-    public String getCrstype() { return crstype; }
-    public void setCrstype(String crstype) { this.crstype = crstype; }
+    public String getScrelective() { return screlective; }
+    public void setScrelective(String screlective) { this.screlective = screlective; }
 
     public Long getScrcrsid() { return scrcrsid; }
     public void setScrcrsid(Long scrcrsid) { this.scrcrsid = scrcrsid; }
@@ -88,4 +95,7 @@ public class SemesterCourses {
 
     public Long getScrseqno() { return scrseqno; }
     public void setScrseqno(Long scrseqno) { this.scrseqno = scrseqno; }
+
+    public Long getCtpid() { return ctpid; }
+    public void setCtpid(Long ctpid) { this.ctpid = ctpid; }
 }

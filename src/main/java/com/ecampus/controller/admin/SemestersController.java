@@ -57,7 +57,8 @@ public class SemestersController {
                         (String) r[1],
                         (String) r[2],
                         (String) r[3],
-                        (String) r[4]
+                        (String) r[4],
+                        (String) r[5]
                 )).toList();
 
         Map<String, Map<String, List<SemesterCoursesViewDTO>>> coursesByTermThenBatch =

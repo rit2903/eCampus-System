@@ -44,7 +44,8 @@ public class TermCoursesController {
                         (String) r[1],
                         (String) r[2],
                         (String) r[3],
-                        (String) r[4]
+                        (String) r[4],
+                        (String) r[5]
                 )).toList();
 
         Map<String, Map<String, List<TermCoursesViewDTO>>> coursesByAcademicYearThenTerm =
@@ -70,12 +71,18 @@ public class TermCoursesController {
             termIdMap.computeIfAbsent(ayrname, k -> new LinkedHashMap<>()).put(trmname, trmid);
         }
 
+        // Find the highest trmid per term type (Autumn, Winter, Summer)
+        Map<String, Long> maxTrmidByType = new HashMap<>();
+        for (Map<String, Long> termNameToId : termIdMap.values()) {
+            for (Map.Entry<String, Long> entry : termNameToId.entrySet()) {
+                maxTrmidByType.merge(entry.getKey(), entry.getValue(), Long::max);
+            }
+        }
+        Set<Long> latestTermIds = new HashSet<>(maxTrmidByType.values());
+
         model.addAttribute("coursesByAcademicYearThenTerm", coursesByAcademicYearThenTerm);
         model.addAttribute("termIdMap", termIdMap);
-        
-        // Find the maximum (latest) academic year name for showing buttons only on latest terms
-        String maxAyrname = coursesByAcademicYearThenTerm.keySet().stream().findFirst().orElse("");
-        model.addAttribute("maxAyrname", maxAyrname);
+        model.addAttribute("latestTermIds", latestTermIds);
         
         return "admin/termcourses";
     }

@@ -37,7 +37,7 @@ public interface TermCoursesRepository extends JpaRepository<TermCourses, Long> 
 //    Long findMaxTermCourseid();
 
     @Query(value = """
-            SELECT a.ayrname as ayrname, t.trmname AS term, c.crscode AS crscode, c.crsname AS crsname, CONCAT(c.crscreditpoints, ' (', c.crslectures, ' + ', c.crstutorials, ' + ', c.crspracticals, ')') AS credithours FROM ec2.termcourses AS tc
+            SELECT a.ayrname as ayrname, t.trmname AS term, c.crscode AS crscode, c.crsname AS crsname, tc.crstype AS crstype, CONCAT(c.crscreditpoints, ' (', c.crslectures, ' + ', c.crstutorials, ' + ', c.crspracticals, ')') AS credithours FROM ec2.termcourses AS tc
             JOIN ec2.terms AS t
             ON tc.tcrtrmid=t.trmid
             JOIN ec2.academicyears AS a

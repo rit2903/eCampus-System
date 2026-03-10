@@ -30,7 +30,7 @@
                 <thead>
                 <!-- Batch row -->
                 <tr>
-                    <th colspan="3"
+                    <th colspan="4"
                         th:text="${batchEntry.key}"
                         style="
                             text-align:center;
@@ -44,6 +44,7 @@
                 <tr>
                     <th style="background-color:#003366; color:white;">Course Code</th>
                     <th style="background-color:#003366; color:white;">Course Title</th>
+                    <th style="background-color:#003366; color:white;">Course Type</th>
                     <th style="background-color:#003366; color:white;">Credit Hours</th>
                 </tr>
                 </thead>
@@ -52,6 +53,7 @@
                 <tr th:each="sc : ${batchEntry.value}">
                     <td th:text="${sc.crscode}"></td>
                     <td th:text="${sc.crsname}"></td>
+                    <td th:text="${sc.crstype}"></td>
                     <td th:text="${sc.credithours}"></td>
                 </tr>
                 </tbody>

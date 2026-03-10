@@ -5,5 +5,6 @@ public record SemesterCoursesViewDTO(
         String batchsem,
         String crscode,
         String crsname,
+        String crstype,
         String credithours
 ) {}
