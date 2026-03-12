@@ -1,13 +1,18 @@
 package com.ecampus.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.ecampus.dto.CourseConversionCourseDTO;
+import com.ecampus.dto.CourseConversionTypeGroupDTO;
 import com.ecampus.dto.CourseTypeProgressDTO;
+import com.ecampus.dto.CourseTypeOptionDTO;
 import com.ecampus.dto.OverallCourseTypeProgressDTO;
 import com.ecampus.model.*;
 import com.ecampus.repository.*;
@@ -47,6 +52,9 @@ public class StudentGraduationRequirementsService {
 
     @Autowired
     private CoursesRepository coursesRepo;
+
+    @Autowired
+    private CourseTypeConversionRepository courseTypeConversionRepo;
 
     /**
      * Returns the stdid for the logged-in user.
@@ -173,6 +181,229 @@ public class StudentGraduationRequirementsService {
     }
 
     /**
+     * Builds course-type-wise list of all eligible student courses for conversion UI.
+     */
+    public List<CourseConversionTypeGroupDTO> buildCourseConversionGroups(Long stdid, Long schemeId, Long splid) {
+        return buildCourseConversionComputation(stdid, schemeId, splid).groups();
+    }
+
+    /**
+     * Updates curr_ctpid for a single student registration course after validating conversion eligibility.
+     */
+    @Transactional
+    public void updateCourseTypeConversion(Long stdid, Long schemeId, Long splid, Long srcid, Long newCtpid) {
+        CourseConversionComputation computation = buildCourseConversionComputation(stdid, schemeId, splid);
+        CourseConversionComputedCourse target = computation.courseBySrcId().get(srcid);
+        if (target == null) {
+            throw new IllegalArgumentException("Course record is not available for conversion.");
+        }
+        if (!target.dropdownEnabled()) {
+            throw new IllegalArgumentException("This course is not eligible for course-type conversion.");
+        }
+        if (!target.optionCtpidSet().contains(newCtpid)) {
+            throw new IllegalArgumentException("Selected course type is not allowed for this course.");
+        }
+
+        StudentRegistrationCourses src = studentRegCoursesRepo.findBySrcid(srcid)
+                .orElseThrow(() -> new IllegalArgumentException("Student course record not found."));
+
+        Set<Long> studentSrgIds = studentRegistrationsRepo.findregisteredsemesters(stdid).stream()
+                .map(StudentRegistrations::getSrgid)
+                .collect(Collectors.toSet());
+        if (!studentSrgIds.contains(src.getSrcsrgid())) {
+            throw new IllegalArgumentException("You are not allowed to modify this course record.");
+        }
+
+        src.setCurrCtpid(newCtpid);
+        studentRegCoursesRepo.save(src);
+    }
+
+    private CourseConversionComputation buildCourseConversionComputation(Long stdid, Long schemeId, Long splid) {
+        List<CourseTypes> courseTypes = courseTypesRepo.findBySchemeIdAndSplidOrderByCtpid(schemeId, splid);
+        Map<Long, CourseTypes> courseTypeById = courseTypes.stream()
+                .collect(Collectors.toMap(CourseTypes::getCtpid, ct -> ct, (left, right) -> left));
+        Map<Long, Long> minCoursesByCtpid = courseTypes.stream()
+                .collect(Collectors.toMap(CourseTypes::getCtpid, ct -> safeLong(ct.getMinCourses()), (left, right) -> left));
+
+        List<StudentRegistrations> registrations = studentRegistrationsRepo.findregisteredsemesters(stdid);
+        if (registrations.isEmpty()) {
+            return new CourseConversionComputation(Collections.emptyList(), Collections.emptyMap());
+        }
+
+        List<Long> srgIds = registrations.stream().map(StudentRegistrations::getSrgid).toList();
+        List<StudentRegistrationCourses> regCourses = studentRegCoursesRepo.findBySrcsrgidIn(srgIds);
+        if (regCourses.isEmpty()) {
+            return new CourseConversionComputation(Collections.emptyList(), Collections.emptyMap());
+        }
+
+        List<Long> tcrIds = regCourses.stream()
+                .map(StudentRegistrationCourses::getSrctcrid)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (tcrIds.isEmpty()) {
+            return new CourseConversionComputation(Collections.emptyList(), Collections.emptyMap());
+        }
+
+        Map<Long, List<Egcrstt1>> gradesByTcr = egcrstt1Repo.findByStudIdAndTcridIn(stdid, tcrIds).stream()
+                .collect(Collectors.groupingBy(Egcrstt1::getTcrid));
+
+        Set<Long> includedTcrIds = tcrIds.stream()
+                .filter(tcrid -> isIncludedForConversion(gradesByTcr.getOrDefault(tcrid, Collections.emptyList())))
+                .collect(Collectors.toSet());
+        if (includedTcrIds.isEmpty()) {
+            return new CourseConversionComputation(Collections.emptyList(), Collections.emptyMap());
+        }
+
+        Map<Long, TermCourses> termCourseById = termCoursesRepo.findAllById(includedTcrIds).stream()
+                .collect(Collectors.toMap(TermCourses::getTcrid, tc -> tc, (left, right) -> left));
+        Set<Long> courseIds = termCourseById.values().stream()
+                .map(TermCourses::getTcrcrsid)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, Courses> courseById = coursesRepo.findAllById(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getCrsid, c -> c, (left, right) -> left));
+
+        List<CourseTypeConversion> conversionRules = courseTypeConversionRepo.findAll();
+        Map<Long, LinkedHashSet<Long>> allowedByOrigCtpid = new HashMap<>();
+        for (CourseTypeConversion rule : conversionRules) {
+            if (rule.getOrigCtpid() == null || rule.getAllowedCtpid() == null) {
+                continue;
+            }
+            allowedByOrigCtpid
+                    .computeIfAbsent(rule.getOrigCtpid(), key -> new LinkedHashSet<>())
+                    .add(rule.getAllowedCtpid());
+        }
+
+        List<WorkingCourse> workingCourses = new ArrayList<>();
+        for (StudentRegistrationCourses src : regCourses) {
+            Long tcrid = src.getSrctcrid();
+            if (tcrid == null || !includedTcrIds.contains(tcrid)) {
+                continue;
+            }
+
+            Long origCtpid = src.getOrigCtpid();
+            Long currCtpid = src.getCurrCtpid() != null ? src.getCurrCtpid() : origCtpid;
+            if (currCtpid == null) {
+                continue;
+            }
+
+            TermCourses termCourse = termCourseById.get(tcrid);
+            if (termCourse == null || termCourse.getTcrcrsid() == null) {
+                continue;
+            }
+
+            Courses course = courseById.get(termCourse.getTcrcrsid());
+            if (course == null) {
+                continue;
+            }
+
+            workingCourses.add(new WorkingCourse(src, termCourse, course, origCtpid, currCtpid));
+        }
+
+        Map<Long, Long> totalByCurrentCtpid = workingCourses.stream()
+                .collect(Collectors.groupingBy(WorkingCourse::currentCtpid, Collectors.counting()));
+
+        Map<Long, CourseConversionTypeGroupDTO> groupsByCtpid = new LinkedHashMap<>();
+        for (CourseTypes ct : courseTypes) {
+            CourseConversionTypeGroupDTO group = new CourseConversionTypeGroupDTO();
+            group.setCtpid(ct.getCtpid());
+            group.setCtpcode(ct.getCtpcode());
+            group.setCtpname(ct.getCtpname());
+            group.setCrscat(ct.getCrscat());
+            group.setMinCourses(safeLong(ct.getMinCourses()));
+            group.setTotalCourses(totalByCurrentCtpid.getOrDefault(ct.getCtpid(), 0L));
+            groupsByCtpid.put(ct.getCtpid(), group);
+        }
+
+        Map<Long, CourseConversionComputedCourse> computedBySrcId = new HashMap<>();
+        for (WorkingCourse wc : workingCourses) {
+            CourseConversionTypeGroupDTO group = groupsByCtpid.computeIfAbsent(wc.currentCtpid(), key -> {
+                CourseConversionTypeGroupDTO dynamic = new CourseConversionTypeGroupDTO();
+                dynamic.setCtpid(key);
+                CourseTypes extraType = courseTypesRepo.findById(key).orElse(null);
+                if (extraType != null) {
+                    dynamic.setCtpcode(extraType.getCtpcode());
+                    dynamic.setCtpname(extraType.getCtpname());
+                    dynamic.setCrscat(extraType.getCrscat());
+                } else {
+                    dynamic.setCtpcode("CTP-" + key);
+                    dynamic.setCtpname("Unknown Course Type");
+                    dynamic.setCrscat("OTHER");
+                }
+                dynamic.setMinCourses(minCoursesByCtpid.getOrDefault(key, 0L));
+                dynamic.setTotalCourses(totalByCurrentCtpid.getOrDefault(key, 0L));
+                return dynamic;
+            });
+
+            long minRequired = group.getMinCourses();
+            long currentTotal = totalByCurrentCtpid.getOrDefault(wc.currentCtpid(), 0L);
+            boolean exceedsMin = currentTotal > minRequired;
+            boolean alreadyChanged = wc.origCtpid() != null && !Objects.equals(wc.origCtpid(), wc.currentCtpid());
+            boolean hasConversionRule = wc.origCtpid() != null && allowedByOrigCtpid.containsKey(wc.origCtpid());
+
+            LinkedHashSet<Long> optionCtpids = new LinkedHashSet<>();
+            if (wc.origCtpid() != null) {
+                optionCtpids.add(wc.origCtpid());
+            }
+            if (wc.origCtpid() != null) {
+                optionCtpids.addAll(allowedByOrigCtpid.getOrDefault(wc.origCtpid(), new LinkedHashSet<>()));
+            }
+            optionCtpids.add(wc.currentCtpid());
+
+            boolean dropdownEnabled = alreadyChanged || (exceedsMin && hasConversionRule);
+
+            List<CourseTypeOptionDTO> optionDtos = new ArrayList<>();
+            for (Long optionCtpid : optionCtpids) {
+                if (optionCtpid == null) {
+                    continue;
+                }
+                CourseTypes optionType = courseTypeById.get(optionCtpid);
+                if (optionType == null) {
+                    optionType = courseTypesRepo.findById(optionCtpid).orElse(null);
+                    if (optionType != null) {
+                        courseTypeById.put(optionCtpid, optionType);
+                    }
+                }
+                String optionCode = optionType != null && optionType.getCtpcode() != null
+                        ? optionType.getCtpcode()
+                        : ("CTP-" + optionCtpid);
+                optionDtos.add(new CourseTypeOptionDTO(optionCtpid, optionCode));
+            }
+
+            CourseTypes currType = courseTypeById.get(wc.currentCtpid());
+            CourseTypes origType = wc.origCtpid() != null ? courseTypeById.get(wc.origCtpid()) : null;
+
+            CourseConversionCourseDTO courseDto = new CourseConversionCourseDTO();
+            courseDto.setSrcid(wc.src().getSrcid());
+            courseDto.setTcrid(wc.termCourse().getTcrid());
+            courseDto.setOrigCtpid(wc.origCtpid());
+            courseDto.setCurrCtpid(wc.currentCtpid());
+            courseDto.setOrigCtpcode(origType != null ? origType.getCtpcode() : null);
+            courseDto.setCurrCtpcode(currType != null ? currType.getCtpcode() : ("CTP-" + wc.currentCtpid()));
+            courseDto.setCrscode(wc.course().getCrscode());
+            courseDto.setCrsname(wc.course().getCrsname());
+            courseDto.setCreditHours(formatCreditHours(wc.course()));
+            courseDto.setDropdownEnabled(dropdownEnabled);
+            courseDto.setChangedFromOriginal(alreadyChanged);
+            courseDto.setOptions(optionDtos);
+
+            group.getCourses().add(courseDto);
+            computedBySrcId.put(wc.src().getSrcid(),
+                    new CourseConversionComputedCourse(courseDto.isDropdownEnabled(), optionCtpids));
+        }
+
+        List<CourseConversionTypeGroupDTO> groups = groupsByCtpid.values().stream()
+                .filter(group -> !group.getCourses().isEmpty())
+                .peek(group -> group.getCourses().sort(Comparator
+                        .comparing((CourseConversionCourseDTO c) -> nullSafe(c.getCrscode()))
+                        .thenComparing(c -> nullSafe(c.getCrsname()))))
+                .collect(Collectors.toList());
+
+        return new CourseConversionComputation(groups, computedBySrcId);
+    }
+
+    /**
      * Builds the map of ctpid -> count of completed/passed courses for a student.
      */
     private CompletedCourseMetrics buildCompletedCourseMetrics(Long stdid) {
@@ -279,8 +510,51 @@ public class StudentGraduationRequirementsService {
         return String.valueOf(num);
     }
 
+    private boolean isIncludedForConversion(List<Egcrstt1> grades) {
+        if (grades == null || grades.isEmpty()) {
+            return true;
+        }
+        return grades.stream().anyMatch(grade -> grade.getObtgrId() == null ||
+                (grade.getObtgrId() != 5L && grade.getObtgrId() != 8L));
+    }
+
+    private String formatCreditHours(Courses course) {
+        BigDecimal points = safeDecimal(course.getCrscreditpoints());
+        BigDecimal lectures = safeDecimal(course.getCrslectures());
+        BigDecimal tutorials = safeDecimal(course.getCrstutorials());
+        BigDecimal practicals = safeDecimal(course.getCrspracticals());
+        return formatDecimal(points) + " (" + formatDecimal(lectures) + " + " +
+                formatDecimal(tutorials) + " + " + formatDecimal(practicals) + ")";
+    }
+
+    private BigDecimal safeDecimal(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
+    }
+
+    private String formatDecimal(BigDecimal value) {
+        return safeDecimal(value).setScale(2, RoundingMode.HALF_UP).toPlainString();
+    }
+
+    private String nullSafe(String value) {
+        return value != null ? value : "";
+    }
+
     private long safeLong(Long value) {
         return value != null ? value : 0L;
+    }
+
+    private record WorkingCourse(StudentRegistrationCourses src,
+                                 TermCourses termCourse,
+                                 Courses course,
+                                 Long origCtpid,
+                                 Long currentCtpid) {
+    }
+
+    private record CourseConversionComputedCourse(boolean dropdownEnabled, Set<Long> optionCtpidSet) {
+    }
+
+    private record CourseConversionComputation(List<CourseConversionTypeGroupDTO> groups,
+                                               Map<Long, CourseConversionComputedCourse> courseBySrcId) {
     }
 
     private record CompletedCourseMetrics(Map<Long, Long> completedCounts,
