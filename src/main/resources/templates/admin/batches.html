@@ -26,7 +26,6 @@
     <table class="table table-bordered mt-3">
         <thead class="table-light">
         <tr>
-            <th style="background-color: #003366; color: white;">Batch ID</th>
             <th style="background-color: #003366; color: white;">Academic Year</th>
             <th style="background-color: #003366; color: white;">Program</th>
             <th style="background-color: #003366; color: white;">Batch</th>
@@ -38,7 +37,6 @@
 
         <tbody>
         <tr th:each="b : ${batches}">
-            <td th:text="${b.bchid}"></td>
             <td th:text="${b.ayrname}"></td>
             <td th:text="${b.spldesc}"></td>
             <td th:text="${b.bchname}"></td>
